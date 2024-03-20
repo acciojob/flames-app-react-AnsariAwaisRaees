@@ -1,78 +1,96 @@
-import React, { useState } from "react";
-import '../styles/App.css';
+import React, { Component, useState } from "react";
+import "../styles/App.css";
 
-const App = () => {
-    const [firstname, setFirstname] = useState("");
-    const [secondname, setSecondname] = useState("");
-    const [status, setStatus] = useState("");
-
-    const calculateRelationship = () => {
-        if(firstname === '' || secondname === ''){
-            setStatus('Please Enter valid input');
-            return;
+class App extends Component {
+    
+  render() {
+    const [str1, setStr1] = useState("");
+    const [str2, setStr2] = useState("");
+    const [op, setOp] = useState(0);
+    const [opMap, setOpMap] = useState({
+      0: "Siblings",
+      1: "Friends",
+      2: "Love",
+      3: "Affection",
+      4: "Marriage",
+      5: "Enemy",
+    });
+  
+    const calculateRelation = () => {
+      const mapper1 = {};
+      const mapper2 = {};
+  
+      const resultMapper = {};
+  
+      for (let i = 0; i < str1.length; i++) {
+        if (mapper1[str1[i]]) mapper1[str1[i]] += 1;
+        else mapper1[str1[i]] = 1;
+      }
+  
+      for (let i = 0; i < str2.length; i++) {
+        if (mapper2[str2[i]]) mapper2[str2[i]] += 1;
+        else mapper2[str2[i]] = 1;
+      }
+  
+      for (let i in mapper1) {
+        if (Object.keys(mapper2).includes(i)) {
+          resultMapper[i] = mapper1[i] + mapper2[i] - 1;
         }
-
-        let firstArr = firstname.split("");
-        let secondArr = secondname.split("");
-        let newArr = [];
-
-        // To splice array and modify string
-        for(let i=0; i<firstArr.length; i++){
-            let flag = false;
-            for(let j=0; j<secondArr.length; j++){
-                if(firstArr[i]===secondArr[j]){
-                    secondArr.splice(j, 1);
-                    flag = true;
-                    break;
-                }
-            }
-            if(!flag){
-                // Then only need to add it(char) in our first string array
-                newArr.push(firstArr[i]);
-            }
-        }
-
-
-        // To calculate relationship status
-        let str = newArr.join("") + secondArr.join("");
-        let n = (str.length) % 6;
-        switch(n){
-            case 1 :
-                return setStatus('Friends');
-            case 2 :
-                return setStatus('Love');
-            case 3 :
-                return setStatus('Affection');
-            case 4 :
-                return setStatus('Marriage');
-            case 5 :
-                return setStatus('Enemy');
-            case 0 :
-                return setStatus('Siblings');
-        }
-    }
-
-    const clearStatus = () => {
-        setFirstname('');
-        setSecondname('');
-        setStatus('');
-    }
-
+      }
+  
+      let sum = 0;
+  
+      for (let i in resultMapper) {
+        sum += parseInt(resultMapper[i]);
+      }
+  
+      console.log({ mapper1, mapper2, resultMapper, sum }, sum % 6);
+      setOp(sum % 6);
+    };
+  
+    const clear = () => {
+      setStr1("");
+      setStr2("");
+    };
+  
     return (
-        <div id="main">
-            {/* Do not remove the main div */}
-            <input type="text" placeholder="Enter first name" value={firstname} 
-                onChange={(e) => setFirstname(e.target.value)} data-testid="input1" name="name1"/>
-            <input type="text" placeholder="Enter second name" value={secondname} 
-                onChange={(e) => setSecondname(e.target.value)} data-testid="input2" name="name2" />
-            <button onClick={calculateRelationship} data-testid="calculate_relationship" >Calculate Relationship Future</button>
-            <button onClick={clearStatus} data-testid="clear" >Clear</button>
-
-            <h3 data-testid="answer" >{status}</h3>
+      <div id="main">
+        <div>
+          Str1 :
+          <input
+            data-testid="input1"
+            type="text"
+            value={str1}
+            onChange={(e) => {
+              const val1 = e.target.value;
+              if (val1) setStr1(val1.toLowerCase());
+            }}
+          />
+          <br />
+          Str2 :
+          <input
+            data-testid="input2"
+            type="text"
+            value={str2}
+            onChange={(e) => {
+              setStr2(e.target.value?.toLowerCase());
+            }}
+          />
+          <br />
+          <button
+            onClick={calculateRelation}
+            data-testid="calculate_relationship"
+          >
+            Calculate Relationship Future
+          </button>
+          <h3 data-testid="answer">{opMap[op]}</h3>
+          <button onClick={clear} data-testid="clear">
+            Clear
+          </button>
         </div>
-    )
+      </div>
+    );
+  }
 }
-
-
 
 export default App;
